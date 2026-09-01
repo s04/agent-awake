@@ -16,7 +16,7 @@ Claude Code, Codex, and friends run for twenty minutes at a time now. A MacBook 
 
 - **Stay awake** — runs `caffeinate -ims` so the machine, display, and disk don't idle-sleep.
 - **Awake with lid closed** — sets `pmset disablesleep 1` so closing the lid doesn't sleep the machine.
-- **Lock screen when lid reopens** — watches the lid sensor and locks the screen the moment you reopen it. Type your password and everything is still running.
+- **Lock screen on lid close and reopen** — watches the lid sensor and locks the session the moment the lid closes, so it is already locked before anyone opens it, and again on reopen. Type your password and everything is still running. Skipped when an external display is attached, since that is clamshell mode and the normal screen-lock timeout applies.
 - **Agent mode** — turns all of the above on in one click. **Everything OFF** restores normal sleep.
 - **Timer** — awake for 30 minutes to 8 hours, then everything off.
 - **Auto-off guards** — restore normal sleep and send a notification when:
@@ -67,7 +67,7 @@ Read these before trusting the app with a closed laptop.
 - **Heat.** A lid-closed laptop with sleep disabled runs at full power. The thermal guard reacts to the OS thermal state, which is a late signal. Don't rely on it as your only protection; set a timer as well.
 - **The sudoers rule** lets any process running as your user flip the sleep setting without a password. It cannot run anything else. Remove it if that bothers you.
 - **The URL scheme** can be triggered by any app or web page. Browsers ask before opening a custom scheme, but a local script could toggle sleep or lock your screen. Neither action is destructive.
-- **Lock-on-reopen** uses the same private system call as ⌃⌘Q. If a future macOS removes it, the app falls back to display sleep, which locks if "Require password after display is turned off" is set in Lock Screen settings.
+- **Lid lock** uses the same private system call as ⌃⌘Q. If a future macOS removes it, the app falls back to display sleep, which locks if "Require password after display is turned off" is set in Lock Screen settings.
 - **Unsigned builds.** There's no Apple Developer ID behind the releases yet, so Gatekeeper will warn on first launch. Build from source if you'd rather not trust a binary.
 
 ## Release

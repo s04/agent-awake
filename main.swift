@@ -16,7 +16,7 @@ let lowBatteryPercent = 20
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var statusItem: NSStatusItem!
     var caffeinate: Process?
-    var lidWasClosed = false
+    var lidWasClosed = false, externalDisplayWhileOpen = false, clamshellClose = false
     var wasOnAC = true
     var lowBatteryFired = false, heatFired = false, watchedWasRunning = false
     var awakeUntil: Date?
@@ -114,10 +114,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var anythingOn: Bool { caffeinated || lidAwake }
 
     // MARK: - Watchers
+    // Locks on close so the session is already locked before the lid ever reopens, and again on
+    // reopen in case the app started with the lid shut. Skipped when an external display was
+    // attached at close time: that is clamshell mode, and the normal screen-lock timeout applies.
     func pollLid() {
         let closed = lidClosed
         defer { lidWasClosed = closed }
-        if lidWasClosed && !closed && pref("lockOnLidOpen") { lockScreen() }
+        if !closed { externalDisplayWhileOpen = NSScreen.screens.count > 1 }
+        guard closed != lidWasClosed, pref("lockOnLidOpen") else { return }
+        if closed { clamshellClose = externalDisplayWhileOpen }
+        if !clamshellClose { lockScreen() }
     }
 
     func pollGuards() {
@@ -295,7 +301,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let pwless = passwordless
         item(menu, "Stay awake (caffeinate)", #selector(toggleCaffeinate), "c", on: caffeinated)
         item(menu, "Awake with lid closed" + (pwless ? "" : " (admin)"), #selector(toggleLid), "l", on: lidAwake)
-        prefItem(menu, "Lock screen when lid reopens", "lockOnLidOpen")
+        prefItem(menu, "Lock screen on lid close and reopen", "lockOnLidOpen")
         item(menu, "Agent mode: all ON", #selector(agentMode), "a")
 
         let timer = NSMenuItem(title: awakeUntil.map { "Awake for… (\(remaining($0)) left)" } ?? "Awake for…", action: nil, keyEquivalent: "")

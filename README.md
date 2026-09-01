@@ -4,6 +4,10 @@ A tiny macOS menu-bar app for people who run coding agents. Close the lid, walk 
 
 One Swift file, no dependencies, MIT licensed.
 
+![How AgentAwake handles one agent run with the lid closed](docs/agentawake.png)
+
+<sub>Interactive version: open <code>docs/agentawake.html</code> locally.</sub>
+
 ## Why
 
 Claude Code, Codex, and friends run for twenty minutes at a time now. A MacBook with the lid closed goes to sleep and kills the job. The usual fix is `pmset disablesleep`, which has two problems: macOS then never shows the lock screen when you reopen the lid, and nothing ever turns it back off, so the laptop cooks in your bag. AgentAwake wraps the setting with the guards it should have had.

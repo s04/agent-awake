@@ -1,0 +1,211 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "AgentAwake: one agent run, lid closed",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "you",
+      "label": "You"
+    },
+    {
+      "id": "app",
+      "label": "AgentAwake"
+    },
+    {
+      "id": "guards",
+      "label": "Auto-off guards",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "start",
+      "label": "Start",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "away",
+      "label": "Away from the keyboard",
+      "fromCol": 2,
+      "toCol": 4,
+      "variant": "emphasis"
+    },
+    {
+      "id": "back",
+      "label": "Back",
+      "fromCol": 5,
+      "toCol": 5
+    }
+  ],
+  "mainPath": [
+    "prompt",
+    "on",
+    "close",
+    "awake",
+    "finish",
+    "restore",
+    "reopen",
+    "lock"
+  ],
+  "nodes": [
+    {
+      "id": "prompt",
+      "lane": "you",
+      "col": 0,
+      "type": "external",
+      "label": "Send a prompt",
+      "sublabel": "Claude Code, Codex\u2026",
+      "width": 136
+    },
+    {
+      "id": "close",
+      "lane": "you",
+      "col": 2,
+      "type": "external",
+      "label": "Close the lid",
+      "sublabel": "walk away",
+      "width": 136
+    },
+    {
+      "id": "reopen",
+      "lane": "you",
+      "col": 5,
+      "type": "external",
+      "label": "Reopen the lid",
+      "sublabel": "come back",
+      "width": 136
+    },
+    {
+      "id": "on",
+      "lane": "app",
+      "col": 1,
+      "type": "backend",
+      "label": "Agent mode ON",
+      "sublabel": "caffeinate + disablesleep",
+      "tag": "hook or one click",
+      "width": 136
+    },
+    {
+      "id": "awake",
+      "lane": "app",
+      "col": 3,
+      "type": "backend",
+      "label": "Mac stays awake",
+      "sublabel": "agent keeps running",
+      "width": 136
+    },
+    {
+      "id": "restore",
+      "lane": "app",
+      "col": 4,
+      "type": "backend",
+      "label": "Sleep restored",
+      "sublabel": "notification sent",
+      "width": 136
+    },
+    {
+      "id": "lock",
+      "lane": "app",
+      "col": 5,
+      "type": "security",
+      "label": "Lock screen",
+      "sublabel": "same as \u2303\u2318Q",
+      "width": 136
+    },
+    {
+      "id": "finish",
+      "lane": "guards",
+      "col": 3,
+      "type": "messagebus",
+      "label": "Agent finishes",
+      "sublabel": "Stop hook or pgrep",
+      "width": 136
+    },
+    {
+      "id": "battery",
+      "lane": "guards",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Timer, battery, heat",
+      "sublabel": "any one restores sleep",
+      "width": 176
+    }
+  ],
+  "edges": [
+    {
+      "id": "prompt-on",
+      "from": "prompt",
+      "to": "on",
+      "label": "agentawake://on",
+      "variant": "emphasis"
+    },
+    {
+      "id": "on-close",
+      "from": "on",
+      "to": "close",
+      "variant": "default"
+    },
+    {
+      "id": "close-awake",
+      "from": "close",
+      "to": "awake",
+      "label": "lid sensor: closed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "awake-finish",
+      "from": "awake",
+      "to": "finish",
+      "label": "agentawake://off",
+      "variant": "default"
+    },
+    {
+      "id": "finish-restore",
+      "from": "finish",
+      "to": "restore",
+      "variant": "emphasis"
+    },
+    {
+      "id": "battery-restore",
+      "from": "battery",
+      "to": "restore",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "restore-reopen",
+      "from": "restore",
+      "to": "reopen",
+      "variant": "default"
+    },
+    {
+      "id": "reopen-lock",
+      "from": "reopen",
+      "to": "lock",
+      "label": "lid sensor: open",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "While you're away",
+      "items": [
+        "Lid closed, machine awake, agent working",
+        "Menu-bar icon shows the state at a glance"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "It knows when to stop",
+      "items": [
+        "Agent exit, timer, low battery, or heat restore normal sleep",
+        "Reopening the lid lands on the lock screen, not your session"
+      ]
+    }
+  ]
+}

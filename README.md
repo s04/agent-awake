@@ -70,6 +70,12 @@ Read these before trusting the app with a closed laptop.
 - **Lid lock** uses the same private system call as ⌃⌘Q. If a future macOS removes it, the app falls back to display sleep, which locks if "Require password after display is turned off" is set in Lock Screen settings.
 - **Unsigned builds.** There's no Apple Developer ID behind the releases yet, so Gatekeeper will warn on first launch. Build from source if you'd rather not trust a binary.
 
+## Disclaimer
+
+Use AgentAwake entirely at your own risk. Disabling sleep—especially while a MacBook is closed, covered, enclosed, unattended, or inside a bag—can cause excessive heat, rapid battery drain, reduced battery or hardware life, shutdowns, data loss, fire, property damage, or personal injury. The battery, thermal, timer, process, and power guards are best-effort safeguards only; they may respond late, fail, or be bypassed by macOS, hardware, configuration, permissions, bugs, or other software. Do not rely on AgentAwake as a safety system, and never leave a running computer where heat cannot safely escape.
+
+To the fullest extent permitted by applicable law, AgentAwake is provided **“as is” and “as available,” without warranties or guarantees of any kind**, express or implied. The authors, contributors, and distributors accept no responsibility or liability for any loss, damage, cost, or claim arising from installation or use of, inability to use, or reliance on the software, including damage to hardware or batteries, overheating, fire, data loss, loss of work or income, property damage, or personal injury. You are solely responsible for deciding whether and how to use the software and for monitoring your device. See the [MIT License](LICENSE) for the license terms.
+
 ## Release
 
 Push a tag and GitHub Actions builds and attaches the zip:

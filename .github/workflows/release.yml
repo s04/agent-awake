@@ -1,0 +1,19 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: INSTALL=0 bash build.sh "${GITHUB_REF_NAME#v}"
+        # To ship signed builds: import a Developer ID cert into the runner keychain and set
+        # SIGN_IDENTITY / NOTARY_PROFILE here. Unsigned builds need right-click > Open on first launch.
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" build/AgentAwake.zip --generate-notes

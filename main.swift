@@ -1,9 +1,20 @@
 // AgentAwake — menu-bar toggle for caffeinate + lid-closed wakefulness (pmset disablesleep).
+// Optionally locks the screen when the lid is reopened, since with sleep disabled macOS
+// never goes through a sleep/wake cycle and therefore never shows the lock screen on its own.
 import AppKit
+import IOKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var statusItem: NSStatusItem!
     var caffeinate: Process?
+    var lidWasClosed = false
+    var lidTimer: Timer?
+
+    static let lockOnOpenKey = "lockOnLidOpen"
+    var lockOnOpen: Bool {
+        get { UserDefaults.standard.object(forKey: Self.lockOnOpenKey) as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: Self.lockOnOpenKey) }
+    }
 
     func applicationDidFinishLaunching(_ n: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -11,6 +22,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let menu = NSMenu(); menu.delegate = self
         statusItem.menu = menu
         rebuild(menu)
+        lidWasClosed = lidClosed
+        lidTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in self?.pollLid() }
     }
 
     var caffeinated: Bool { caffeinate?.isRunning == true }
@@ -27,6 +40,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return false
     }
 
+    // Physical lid sensor, read from the power-management root domain. No process spawn, cheap to poll.
+    var lidClosed: Bool {
+        let svc = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPMrootDomain"))
+        guard svc != 0 else { return false }
+        defer { IOObjectRelease(svc) }
+        let v = IORegistryEntryCreateCFProperty(svc, "AppleClamshellState" as CFString, kCFAllocatorDefault, 0)?
+            .takeRetainedValue()
+        return (v as? Bool) ?? false
+    }
+
+    func pollLid() {
+        let closed = lidClosed
+        defer { lidWasClosed = closed }
+        if lidWasClosed && !closed && lockOnOpen { lockScreen() }
+    }
+
+    // Same call ⌃⌘Q makes (private login.framework). Falls back to display sleep, which locks
+    // when "Require password after display is turned off" is set in Lock Screen settings.
+    func lockScreen() {
+        if let h = dlopen("/System/Library/PrivateFrameworks/login.framework/login", RTLD_NOW),
+           let sym = dlsym(h, "SACLockScreenImmediate") {
+            typealias Fn = @convention(c) () -> Int32
+            _ = unsafeBitCast(sym, to: Fn.self)()
+            return
+        }
+        let p = Process(); p.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
+        p.arguments = ["displaysleepnow"]; try? p.run()
+    }
+
     func rebuild(_ menu: NSMenu) {
         menu.removeAllItems()
         let caff = NSMenuItem(title: (caffeinated ? "✓ " : "") + "Stay awake (caffeinate)",
@@ -35,7 +77,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let lid = NSMenuItem(title: (lidAwake ? "✓ " : "") + "Awake with lid closed (admin)",
                              action: #selector(toggleLid), keyEquivalent: "l")
         lid.target = self; menu.addItem(lid)
-        let both = NSMenuItem(title: "Agent mode: both ON", action: #selector(agentMode), keyEquivalent: "a")
+        let lock = NSMenuItem(title: (lockOnOpen ? "✓ " : "") + "Lock screen when lid reopens",
+                              action: #selector(toggleLockOnOpen), keyEquivalent: "k")
+        lock.target = self; menu.addItem(lock)
+        let both = NSMenuItem(title: "Agent mode: all ON", action: #selector(agentMode), keyEquivalent: "a")
         both.target = self; menu.addItem(both)
         menu.addItem(.separator())
         let off = NSMenuItem(title: "Everything OFF (sleep normally)", action: #selector(allOff), keyEquivalent: "o")
@@ -69,7 +114,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc func toggleLid() { setLid(!lidAwake) }
-    @objc func agentMode() { if !caffeinated { toggleCaffeinate() }; if !lidAwake { setLid(true) } }
+    @objc func toggleLockOnOpen() { lockOnOpen.toggle() }
+    @objc func agentMode() { if !caffeinated { toggleCaffeinate() }; if !lidAwake { setLid(true) }; lockOnOpen = true }
     @objc func allOff() { if caffeinated { toggleCaffeinate() }; if lidAwake { setLid(false) } }
 
     @objc func quit() {

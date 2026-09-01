@@ -20,12 +20,11 @@ Claude Code, Codex, and friends run for twenty minutes at a time now. A MacBook 
 - **Agent mode** — turns all of the above on in one click. **Everything OFF** restores normal sleep.
 - **Timer** — awake for 30 minutes to 8 hours, then everything off.
 - **Auto-off guards** — restore normal sleep and send a notification when:
-  - the power cable is unplugged (off by default)
   - the battery drops below 20%
   - the machine hits serious thermal pressure with the lid closed
-  - the last watched agent process exits (`claude`, `codex`, `cursor-agent`, `gemini`, `aider` by default, editable)
-- **Agent hooks** — `agentawake://on`, `agentawake://off`, and `agentawake://lock` URLs, so your agent's own lifecycle hooks can keep the machine awake exactly as long as it's working.
+  - the power cable is unplugged (off by default)
 - **Launch at login**, **Check for updates**, optional **Restore sleep on quit**.
+- **Optional, off by default:** stop when a watched agent process exits, and `agentawake://on|off|lock` URLs for harnesses that have lifecycle hooks. Neither is needed for normal use.
 - Menu-bar icon shows state at a glance: ☕️ caffeinated, 🔒 lid-closed awake, 😴 normal.
 
 ## Install
@@ -39,9 +38,9 @@ git clone https://github.com/s04/agent-awake && cd agent-awake
 bash build.sh        # builds, ad-hoc signs, installs to ~/Applications, and launches
 ```
 
-## Hook it to your agent
+## Optional: hook it to your agent
 
-Claude Code example, in `~/.claude/settings.json`. Awake while it works, normal sleep the moment it stops and waits for you:
+You don't need this. Agent mode plus a timer or the battery and heat guards covers the normal case, and every harness has different hooks. If yours has them, the URL scheme is there. Claude Code example, in `~/.claude/settings.json`:
 
 ```json
 {
@@ -52,7 +51,7 @@ Claude Code example, in `~/.claude/settings.json`. Awake while it works, normal 
 }
 ```
 
-Enable the passwordless toggle first (next section), or `on` will prompt for your password every time. The `-g` keeps the app from stealing focus. Any tool that can run a shell command on start and finish can do the same.
+Enable the passwordless toggle first (next section), or `on` will prompt for your password every time. The `-g` keeps the app from stealing focus. **Auto-off ▸ When agent exits** does the same thing without hooks by watching for named processes such as `claude` or `codex`, also off by default.
 
 ## Passwordless sleep toggle
 
@@ -65,7 +64,7 @@ Changing the lid-closed setting needs admin rights. By default AgentAwake asks f
 Read these before trusting the app with a closed laptop.
 
 - **The lid-closed setting is system-wide and outlives the app.** If you quit without turning it off, the machine still won't sleep. Turn on **Restore sleep on quit**, or run `sudo pmset -a disablesleep 0` to fix it by hand.
-- **Heat.** A lid-closed laptop with sleep disabled runs at full power. The thermal guard reacts to the OS thermal state, which is a late signal. Don't rely on it as your only protection; use the timer or the process watch as well.
+- **Heat.** A lid-closed laptop with sleep disabled runs at full power. The thermal guard reacts to the OS thermal state, which is a late signal. Don't rely on it as your only protection; set a timer as well.
 - **The sudoers rule** lets any process running as your user flip the sleep setting without a password. It cannot run anything else. Remove it if that bothers you.
 - **The URL scheme** can be triggered by any app or web page. Browsers ask before opening a custom scheme, but a local script could toggle sleep or lock your screen. Neither action is destructive.
 - **Lock-on-reopen** uses the same private system call as ⌃⌘Q. If a future macOS removes it, the app falls back to display sleep, which locks if "Require password after display is turned off" is set in Lock Screen settings.

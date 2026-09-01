@@ -46,7 +46,7 @@
     "on",
     "close",
     "awake",
-    "finish",
+    "timer",
     "restore",
     "reopen",
     "lock"
@@ -117,12 +117,12 @@
       "width": 136
     },
     {
-      "id": "finish",
+      "id": "timer",
       "lane": "guards",
       "col": 3,
       "type": "messagebus",
-      "label": "Agent finishes",
-      "sublabel": "Stop hook or pgrep",
+      "label": "Timer ends",
+      "sublabel": "30 min \u2013 8 h",
       "width": 136
     },
     {
@@ -130,9 +130,9 @@
       "lane": "guards",
       "col": 4,
       "type": "messagebus",
-      "label": "Timer, battery, heat",
-      "sublabel": "any one restores sleep",
-      "width": 176
+      "label": "Battery low or hot",
+      "sublabel": "20% \u00b7 thermal",
+      "width": 180
     }
   ],
   "edges": [
@@ -140,7 +140,7 @@
       "id": "prompt-on",
       "from": "prompt",
       "to": "on",
-      "label": "agentawake://on",
+      "label": "one click",
       "variant": "emphasis"
     },
     {
@@ -157,15 +157,14 @@
       "variant": "emphasis"
     },
     {
-      "id": "awake-finish",
+      "id": "awake-timer",
       "from": "awake",
-      "to": "finish",
-      "label": "agentawake://off",
+      "to": "timer",
       "variant": "default"
     },
     {
-      "id": "finish-restore",
-      "from": "finish",
+      "id": "timer-restore",
+      "from": "timer",
       "to": "restore",
       "variant": "emphasis"
     },
@@ -203,7 +202,7 @@
       "dot": "amber",
       "title": "It knows when to stop",
       "items": [
-        "Agent exit, timer, low battery, or heat restore normal sleep",
+        "A timer, low battery, or heat restores normal sleep",
         "Reopening the lid lands on the lock screen, not your session"
       ]
     }

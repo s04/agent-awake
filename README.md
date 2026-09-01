@@ -14,7 +14,7 @@ Claude Code, Codex, and friends run for twenty minutes at a time now. A MacBook 
 
 ## Features
 
-- **Stay awake** — runs `caffeinate -ims` so the machine, display, and disk don't idle-sleep.
+- **Stay awake** — runs `caffeinate -dims` so the machine, display, and disk don't idle-sleep.
 - **Awake with lid closed** — sets `pmset disablesleep 1` so closing the lid doesn't sleep the machine.
 - **Lock screen on lid close and reopen** — watches the lid sensor and locks the session the moment the lid closes, so it is already locked before anyone opens it, and again on reopen. Type your password and everything is still running. Skipped when an external display is attached, since that is clamshell mode and the normal screen-lock timeout applies.
 - **Agent mode** — turns all of the above on in one click. **Everything OFF** restores normal sleep.

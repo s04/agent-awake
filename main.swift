@@ -167,7 +167,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if caffeinated { caffeinate?.terminate(); caffeinate = nil }
         else {
             let p = Process(); p.executableURL = URL(fileURLWithPath: "/usr/bin/caffeinate")
-            p.arguments = ["-ims"]; try? p.run(); caffeinate = p
+            p.arguments = ["-dims"]; try? p.run(); caffeinate = p
         }
         updateIcon()
     }
